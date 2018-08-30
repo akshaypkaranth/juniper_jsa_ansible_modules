@@ -1,14 +1,10 @@
 # juniper_jsa_ansible_modules
 Custom Ansible Modules for Juniper Secure Analytics (JSA) aka QRADAR
-#How to use these Ansible modules:
-Step 1 :
-Clone this repo.
-Step 2:
-Edit the example playbooks (.yml files) as per your environment.
-Step 3:
-Run-
-ansible-playbook file.yml -vvv
-#Examples:
+## How to use these Ansible modules:
+Step 1 : Clone this repo.
+Step 2: Edit the example playbooks (.yml files) as per your environment.
+Step 3: Run: ansible-playbook file.yml -vvv
+## Examples:
 
     - name: add authentication token to JSA
       juniper_jsa_addauthtoken:
