@@ -1,0 +1,110 @@
+{
+
+"input": [
+    {
+    "name": "Net_100_via_Ansible",
+    "description": "Network added via ansible",
+    "cidr": "100.0.0.0/8",
+    "id": 100,
+    "domain_id": 0,
+    "group": "Net-10-172-192"
+  },
+  {
+    "name": "Net_10_0_0_0",
+    "description": "Default Network",
+    "cidr": "10.0.0.0/8",
+    "id": 22,
+    "domain_id": 0,
+    "group": "Net-10-172-192"
+  },
+  {
+    "name": "Net_172_16_0_0",
+    "description": "Default Network",
+    "cidr": "172.16.0.0/12",
+    "id": 23,
+    "domain_id": 0,
+    "group": "Net-10-172-192"
+  },
+  {
+    "name": "Net_192_168_0_0",
+    "description": "Default Network",
+    "cidr": "192.168.0.0/16",
+    "id": 24,
+    "domain_id": 0,
+    "group": "Net-10-172-192"
+  },
+  {
+    "name": "Internal",
+    "description": "Default Network",
+    "cidr": "0.0.0.1/32",
+    "id": 25,
+    "domain_id": 0,
+    "group": "DMZ"
+  },
+  {
+    "name": "External",
+    "description": "Default Network",
+    "cidr": "0.0.0.2/32",
+    "id": 26,
+    "domain_id": 0,
+    "group": "DMZ"
+  },
+  {
+    "name": "VPN_Addresses_Space",
+    "description": "Default Network",
+    "cidr": "0.0.0.3/32",
+    "id": 27,
+    "domain_id": 0,
+    "group": "VPN_Addresses_Space"
+  },
+  {
+    "name": "Proxy_Servers",
+    "description": "Default Network",
+    "cidr": "0.0.0.4/32",
+    "id": 28,
+    "domain_id": 0,
+    "group": "Proxy_Servers"
+  },
+  {
+    "name": "NAT_Ranges",
+    "description": "Default Network",
+    "cidr": "0.0.0.5/32",
+    "id": 29,
+    "domain_id": 0,
+    "group": "NAT_Ranges"
+  },
+  {
+    "name": "Server_Network",
+    "description": "Default Network",
+    "cidr": "0.0.0.7/32",
+    "id": 30,
+    "domain_id": 0,
+    "group": "Server_Network"
+  },
+  {
+    "name": "VoIP_Networks",
+    "description": "Default Network",
+    "cidr": "0.0.0.11/32",
+    "id": 31,
+    "domain_id": 0,
+    "group": "VoIP_Networks"
+  },
+  {
+    "name": "Regulatory_Compliance_Servers",
+    "description": "Default Network",
+    "cidr": "0.0.0.12/32",
+    "id": 32,
+    "domain_id": 0,
+    "group": "Regulatory_Compliance_Servers"
+  },
+  {
+    "name": "all",
+    "description": "",
+    "cidr": "0.0.0.14/32",
+    "id": 33,
+    "domain_id": 0,
+    "group": "Wireless_Networks"
+  }
+]
+
+}
