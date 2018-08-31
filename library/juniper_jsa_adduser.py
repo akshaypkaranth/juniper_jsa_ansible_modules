@@ -50,15 +50,21 @@ def postUsers(data):
             'Content-Type': "application/json",
             'Allow-Hidden': "true",
             }
-        try:
+	try:
 		response = requests.request("GET", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers, params = urlparams)
-		actual_role_id = response.json()[0]['id']
-        except Exception as e:
+	#actual_role_id = response.json()[0]['id']
                 #return True, False, response.json()
-                return True, False, response.json()
-        #if response.status_code == 200:
-                #a = response.json()
-         #       actual_role_id = response.json()[0]['id']
+	#f1 = open('/root/jsa-modules/file.txt','w+')
+	#f1.write('debug log')
+	except exception as e:
+		return True, False, {'python exception': str(e)}		
+        #return False, False, { 'msg' : response.status_code, 'size': len(response.json()) }
+        if response.status_code == 200 and (len(response.json()) > 0):
+                actual_role_id = response.json()[0]['id']
+	elif response.status_code == 200 and (len(response.json()) == 0):
+		return True, False, { 'msg': 'role id you entered does not exist' }
+	else:
+		return True, False, response.json()
 
 
 ###
@@ -94,13 +100,14 @@ def postUsers(data):
 		response = requests.request("POST", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers, params = querystring)
 
 	except Exception as e:
-		#return True, False, response.json()
-		pass
+		return True, False, {'python exception': str(e)}
 	#return False, True, response.json()
 
 
 	if response.status_code == 200:
-		return False, True, response.json()
+		return False, True, { 'msg': 'user add success - api endpoint returns empty body' }
+	elif response.status_code == 422:
+                return False, False, response.json()
 	return True, False, response.json()
 
 def main():
@@ -117,13 +124,15 @@ def main():
     }
     module = AnsibleModule(argument_spec=fields)
     is_error, has_changed, result = postUsers (module.params)
+    #import pdb
+    #pdb.set_trace()
 #    is_error, has_changed, result = 0, 0, postUsers(fields)
 
     #module.exit_json(changed=has_changed, meta=result)
     if not is_error:
         module.exit_json(changed=has_changed, meta=result)
     else:
-        module.fail_json(msg='failed', meta=result)
+        module.fail_json(msg='error', meta=result)
 '''
     if not is_error:
         module.exit_json(changed=has_changed, meta=result)
