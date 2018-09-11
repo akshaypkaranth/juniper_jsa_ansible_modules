@@ -17,7 +17,7 @@ Step 3: Run: ansible-playbook file.yml -vvv
     - name: add authentication token to JSA
       juniper_jsa_addauthtoken:
         consoleip: "xx.xx.xx.xx"
-	console_user: "admin"
+        console_user: "admin"
         console_password: "password!"
         role_id: 2
         security_profile_id: 1
