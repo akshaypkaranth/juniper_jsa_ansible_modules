@@ -19,9 +19,10 @@ short_description: Overwrite network hierarchy in JSA
 EXAMPLES = '''
   tasks:
     - name: overwriting network hierarchy
-      overwrite_network_hierarchy:
+      juniper_jsa_overwritenetworkhierarchy:
          consoleip: "xx.xx.xx.xx"
-         console_admin_password: "password"
+	 console_user: "admin"
+         console_password: "password"
       register: result
 
     - name: debug
@@ -50,12 +51,10 @@ def overwrite_network_hierarchy(data):
 	    'Accept': "application/json",
 	    'Content-Type': "application/json",
 	    'Allow-Hidden': "true",
-	    #'Authorization': "Basic YWRtaW46am5wcjEyMyE=",
-	    #'Cache-Control': "no-cache",
-	    #'Postman-Token': "342af374-ad5a-4846-a7ee-398e3cf6ed63"
+            'SEC': data['token']
 	    }
 
-        response = requests.request("PUT", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers, data = json.dumps(querystring))
+        response = requests.request("PUT", url, auth = HTTPBasicAuth(data['console_user'], data['console_password']), verify = False, headers = headers, data = json.dumps(querystring))
 #	print(response.texton
 #	print(reponse.url)
 #	print response.json()
@@ -64,25 +63,26 @@ def overwrite_network_hierarchy(data):
 		return False, True, response.json()
 		#deploy()
 		#return False, True, {"message": "Success ! Network Hierarchy replaced by new value !"}, {"message2": "all good"}
-        return True, True, response.json()
+        return True, False, response.json()
 
 
 def main():
 
     fields = {
         "consoleip": {"required": True, "type": "str"},
-	"console_admin_password": {"required": True, "type": "str", "no_log": True}
         #"input": {"required": True, "type": "str"},
+	"console_user": { "type": "str"},
+	"console_password": { "type": "str", "no_log": True},
+	"token": { "type": "str", "no_log": True}
     }
-
-    module = AnsibleModule(argument_spec=fields)
+    module = AnsibleModule(argument_spec=fields, required_one_of = [ ['console_password', 'token' ] ],mutually_exclusive = [ ['console_password', 'token' ] ], required_together =[['console_user', 'console_password']])
     is_error, has_changed, result = overwrite_network_hierarchy(module.params)
 #    is_error, has_changed, result = 0, 0, postUsers(fields)
 
 #    is_error, has_changed, result, debug = deploy()
 
     if not is_error:
-        module.exit_json(changed=has_changed, meta=debug)
+        module.exit_json(changed=has_changed, meta=result)
     else:
         module.fail_json(msg="Failed", meta=result)
 

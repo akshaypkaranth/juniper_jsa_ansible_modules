@@ -19,9 +19,10 @@ short_description: add new forwarding destination
 EXAMPLES = '''
   tasks:
     - name: add new forwarding destination
-      add_forwarding_destination:
+      juniper_jsa_addforwardingdestination:
         consoleip: "xx.xx.xx.xx"
-        console_admin_password: "password!"
+	console_user: "admin"
+        console_password: "password!"
         event_format: "JSON"
         forwarding_ip: "30.30.30.30"
         name: "mytest"
@@ -60,12 +61,10 @@ def add_forwarding_destination(data):
 	    'Accept': "application/json",
 	    'Content-Type': "application/json",
 	    'Allow-Hidden': "true",
-	    #'Authorization': "Basic YWRtaW46am5wcjEyMyE=",
-	    #'Cache-Control': "no-cache",
-	    #'Postman-Token': "342af374-ad5a-4846-a7ee-398e3cf6ed63"
+            'SEC': data['token']
 	    }
 
-        response = requests.request("POST", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers, data = json.dumps(querystring))
+        response = requests.request("POST", url, auth = HTTPBasicAuth(data['console_user'], data['console_password']), verify = False, headers = headers, data = json.dumps(querystring))
 #	print(response.texton
 #	print(reponse.url)
 #	print response.json()
@@ -80,15 +79,16 @@ def main():
 
     fields = {
         "consoleip": {"required": True, "type": "str"},
-        "console_admin_password": {"required": True, "type": "str", "no_log": True},
         "event_format": {"required": True, "type": "str"},
         "forwarding_ip": {"required": True, "type": "str"},
 	"name": {"required": True, "type": "str"},
         "port": {"required": True, "type": "int"},
-        "protocol": {"required": True, "type": "str"}
+        "protocol": {"required": True, "type": "str"},
+	"console_user": { "type": "str"},
+	"console_password": { "type": "str", "no_log": True},
+	"token": { "type": "str", "no_log": True}
     }
-
-    module = AnsibleModule(argument_spec=fields)
+    module = AnsibleModule(argument_spec=fields, required_one_of = [ ['console_password', 'token' ] ],mutually_exclusive = [ ['console_password', 'token' ] ], required_together =[['console_user', 'console_password']])
     is_error, has_changed, result= add_forwarding_destination (module.params)
 #    is_error, has_changed, result = 0, 0, postUsers(fields)
 

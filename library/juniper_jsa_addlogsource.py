@@ -19,11 +19,12 @@ short_description: add new log source to JSA
 EXAMPLES = '''
   tasks:
     - name: add new log source to JSA
-      addlogsource:
+      juniper_jsa_addlogsource:
          name: "mytest"
          description: "log source added from ansible"
          consoleip: "xx.xx.xx.xx"
-         console_admin_password: "password"
+         console_user: "admin
+         console_password: "password"
          log_source_identifier: "myvsrx"
          credibility: 5
          target_event_collector_id: 103
@@ -51,8 +52,9 @@ def addlogsource(data):
             'Accept': "application/json",
             'Content-Type': "application/json",
             'Allow-Hidden': "true",
+            'SEC': data['token']
             }
-        response = requests.request("GET", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers, params = urlparams)
+        response = requests.request("GET", url, auth = HTTPBasicAuth(data['console_user'], data['console_password']), verify = False, headers = headers, params = urlparams)
         try:
 	   if response.status_code == 200:
            	a = response.json()
@@ -60,9 +62,9 @@ def addlogsource(data):
          #print(response.json())
          #print(response.json('id'))
            else:
-           	return True, True, {'response':response.json(), 'error': 'check log source type'}
+           	return True, False, {'response':response.json(), 'error': 'check log source type'}
         except IndexError:
-	   return True, True, {'response': response.json(), 'error': 'check log source type'}  
+	   return True, False, {'response': response.json(), 'error': 'check log source type'}  
 ###
 
 ###
@@ -70,20 +72,14 @@ def addlogsource(data):
 	logsrc = "Juniper Junos OS Platform"
         urlparams= { "filter": "name=" + "\""+data['target_event_collector_id'] + "\""}
 
-        headers = {
-            'Version': "9.0",
-            'Accept': "application/json",
-            'Content-Type': "application/json",
-            'Allow-Hidden': "true",
-            }
-        response = requests.request("GET", url, auth = HTTPBasicAuth('admin', "Juniper321!"), verify = False, headers = headers, params = urlparams)
+        response = requests.request("GET", url, auth = HTTPBasicAuth(data['console_user'], data['console_password']), verify = False, headers = headers, params = urlparams)
         try:
           if response.status_code == 200:
             actual_target_event_collector_id = response.json()[0]['id']
           else:
-            return True, True, {'response': response.json(), 'error': 'check target event collector id'}
+            return True, False, {'response': response.json(), 'error': 'check target event collector id'}
         except IndexError:
-		return True, True, {'response': response.json(), 'error': 'check target event collector id'}
+		return True, False, {'response': response.json(), 'error': 'check target event collector id'}
          
 ###
         #url = "https://xx.xx.xx.xx/api/config/access/users"
@@ -108,17 +104,8 @@ def addlogsource(data):
     'protocol_type_id': 0
 }
 
-        headers = {
-	    'Version': "9.0",
-	    'Accept': "application/json",
-	    'Content-Type': "application/json",
-	    'Allow-Hidden': "true",
-	    #'Authorization': "Basic YWRtaW46am5wcjEyMyE=",
-	    #'Cache-Control': "no-cache",
-	    #'Postman-Token': "342af374-ad5a-4846-a7ee-398e3cf6ed63"
-	    }
 
-        response = requests.request("POST", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers, data = json.dumps(querystring))
+        response = requests.request("POST", url, auth = HTTPBasicAuth(data['console_user'], data['console_password']), verify = False, headers = headers, data = json.dumps(querystring))
 #	print(response.texton
 #	print(reponse.url)
 #	print response.json()
@@ -126,23 +113,24 @@ def addlogsource(data):
 	if response.status_code == 200|201:
 		#deploy()
 		return False, True, response.json()
-        return True, True, response.json()
+        return True, False, response.json()
 
 
 def main():
 
     fields = {
         "consoleip": {"required": True, "type": "str"},
-        "console_admin_password": {"required": True, "type": "str", "no_log": True},
         "description": {"required": True, "type": "str"},
         "log_source_identifier": {"required": True, "type": "str"},
 	"credibility": {"required": True, "type": "int"},
         "target_event_collector_id": {"required": True, "type": "str"},
         "name": {"required": True, "type": "str"},
-        "log_source_type_id": {"required": True, "type": "str"}
+        "log_source_type_id": {"required": True, "type": "str"},
+	"console_user": { "type": "str"},
+	"console_password": { "type": "str", "no_log": True},
+	"token": { "type": "str", "no_log": True}
     }
-
-    module = AnsibleModule(argument_spec=fields)
+    module = AnsibleModule(argument_spec=fields, required_one_of = [ ['console_password', 'token' ] ],mutually_exclusive = [ ['console_password', 'token' ] ], required_together =[['console_user', 'console_password']])
     is_error, has_changed, result= addlogsource (module.params)
 #    is_error, has_changed, result = 0, 0, postUsers(fields)
 

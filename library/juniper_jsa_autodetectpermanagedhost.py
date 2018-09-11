@@ -19,9 +19,10 @@ short_description: Enable/disable autodetection of log source for event collecto
 EXAMPLES = '''
   tasks:
     - name: enable/disable autodetection of log source for event collector
-      autodetectpermanagedhost:
+      juniper_jsa_autodetectpermanagedhost:
         consoleip: "xx.xx.xx.xx"
-        console_admin_password: "password"
+        console_user: "admin"
+        console_password: "password"
         component_id: "135"
         AUTODETECTION_ENABLED: "false"
       register: result
@@ -48,8 +49,9 @@ def autodetectpermanagedhost(data):
             'Accept': "application/json",
             'Content-Type': "application/json",
             'Allow-Hidden': "true",
+            'SEC': data['token']
             }
-        response = requests.request("GET", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers, params = urlparams)
+        response = requests.request("GET", url, auth = HTTPBasicAuth(data['console_user'], data['console_password']), verify = False, headers = headers, params = urlparams)
         try:
            if response.status_code == 200:
                 a = response.json()
@@ -57,22 +59,16 @@ def autodetectpermanagedhost(data):
          #print(response.json())
          #print(response.json('id'))
            else:
-                return True, True, {'response':response.json(), 'error': 'check component_id'}
+                return True, False, {'response':response.json(), 'error': 'check component_id'}
         except IndexError:
-           return True, True, {'response': response.json(), 'error': 'check component_id'}
+           return True, False, {'response': response.json(), 'error': 'check component_id'}
 ###
 
 ###
         url = "https://" + data['consoleip'] + "/api/config/deployment/components"
         urlparams= { "filter": "host_id=" + "\""+ host_id.__str__() + "\"" + " and " + "type=" + "eventcollector" }
 
-        headers = {
-            'Version': "9.0",
-            'Accept': "application/json",
-            'Content-Type': "application/json",
-            'Allow-Hidden': "true",
-            }
-        response = requests.request("GET", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers, params = urlparams)
+        response = requests.request("GET", url, auth = HTTPBasicAuth(data['console_user'], data['console_password']), verify = False, headers = headers, params = urlparams)
         try:
            if response.status_code == 200:
                 a = response.json()
@@ -80,9 +76,9 @@ def autodetectpermanagedhost(data):
          #print(response.json())
          #print(response.json('id'))
            else:
-                return True, True, {'response':response.json(), 'error': 'make sure the host you gave has event collector component in it'}
+                return True, False, {'response':response.json(), 'error': 'make sure the host you gave has event collector component in it'}
         except IndexError:
-           return True, True, {'response': response.json(), 'error': 'make sure the host you gave has event collector component in it'}
+           return True, False, {'response': response.json(), 'error': 'make sure the host you gave has event collector component in it'}
 ###
 
 
@@ -97,17 +93,7 @@ def autodetectpermanagedhost(data):
 	}
 
 
-	headers = {
-	    'Version': "9.0",
-	    'Accept': "application/json",
-	    'Content-Type': "application/json",
-	    'Allow-Hidden': "true",
-	    #'Authorization': "Basic YWRtaW46am5wcjEyMyE=",
-	    #'Cache-Control': "no-cache",
-	    #'Postman-Token': "342af374-ad5a-4846-a7ee-398e3cf6ed63"
-	    }
-
-	response = requests.request("POST", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers, params = querystring)
+	response = requests.request("POST", url, auth = HTTPBasicAuth(data['console_user'], data['console_password']), verify = False, headers = headers, params = querystring)
 #	print(response.text)
 #	print(reponse.url)
 #	print response.json()
@@ -115,18 +101,19 @@ def autodetectpermanagedhost(data):
 	if response.status_code == 200:
 		return False, True, response.json()
 
-	return True, True, response.json()
+	return True, False, response.json()
 
 def main():
 
     fields = {
         "consoleip": {"required": True, "type": "str"},
-        "console_admin_password": {"required": True, "type": "str", "no_log": True},
         "component_id": {"required": True, "type": "str"},
-        "AUTODETECTION_ENABLED": {"required": True, "type": "str"}
+        "AUTODETECTION_ENABLED": {"required": True, "type": "str"},
+	"console_user": { "type": "str"},
+	"console_password": { "type": "str", "no_log": True},
+	"token": { "type": "str", "no_log": True}
     }
-
-    module = AnsibleModule(argument_spec=fields)
+    module = AnsibleModule(argument_spec=fields, required_one_of = [ ['console_password', 'token' ] ],mutually_exclusive = [ ['console_password', 'token' ] ], required_together =[['console_user', 'console_password']])
     is_error, has_changed, result = autodetectpermanagedhost (module.params)
 #    is_error, has_changed, result = 0, 0, postUsers(fields)
 

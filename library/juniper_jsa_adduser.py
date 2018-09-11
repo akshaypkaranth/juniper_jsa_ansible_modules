@@ -49,9 +49,10 @@ def postUsers(data):
             'Accept': "application/json",
             'Content-Type': "application/json",
             'Allow-Hidden': "true",
-            }
+            'SEC': data['token']
+}
 	try:
-		response = requests.request("GET", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers, params = urlparams)
+		response = requests.request("GET", url, auth = HTTPBasicAuth(data['console_user'], data['console_password']), verify = False, headers = headers, params = urlparams)
 	#actual_role_id = response.json()[0]['id']
                 #return True, False, response.json()
 	#f1 = open('/root/jsa-modules/file.txt','w+')
@@ -91,13 +92,14 @@ def postUsers(data):
 	    'Accept': "text/plain",
 	    'Content-Type': "application/json",
 	    'Allow-Hidden': "true",
+            'SEC': data['token']
 	    #'Authorization': "Basic YWRtaW46am5wcjEyMyE=",
 	    #'Cache-Control': "no-cache",
 	    #'Postman-Token': "342af374-ad5a-4846-a7ee-398e3cf6ed63"
 	    }
 
 	try:
-		response = requests.request("POST", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers, params = querystring)
+		response = requests.request("POST", url, auth = HTTPBasicAuth(data['console_user'], data['console_password']), verify = False, headers = headers, params = querystring)
 
 	except Exception as e:
 		return True, False, {'python exception': str(e)}
@@ -114,15 +116,17 @@ def main():
 
     fields = {
         "consoleip": {"required": True, "type": "str"},
-        "console_admin_password": {"required": True, "type": "str", "no_log": True},
         "description": {"required": True, "type": "str"},
         "email": {"required": True, "type": "str"},
         "password": {"required": True, "type": "str", "no_log": True},
         "role_id": {"default": True, "type": "str"},
         "security_profile_id": {"default": True, "type": "int"},
         "username": {"required": True, "type": "str"},
+        "console_user": { "type": "str"},
+	"console_password": { "type": "str", "no_log": True},
+	"token": { "type": "str", "no_log": True}
     }
-    module = AnsibleModule(argument_spec=fields)
+    module = AnsibleModule(argument_spec=fields, required_one_of = [ ['console_password', 'token' ] ],mutually_exclusive = [ ['console_password', 'token' ] ], required_together =[['console_user', 'console_password']])
     is_error, has_changed, result = postUsers (module.params)
     #import pdb
     #pdb.set_trace()

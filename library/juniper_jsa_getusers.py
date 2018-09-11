@@ -51,12 +51,13 @@ def getusers(data):
 	    #'Accept': "text/plain",
 	    'Content-Type': "application/json",
 	    'Allow-Hidden': "true",
+            'SEC': data['token']
 	    #'Authorization': "Basic YWRtaW46am5wcjEyMyE=",
 	    #'Cache-Control': "no-cache",
 	    #'Postman-Token': "342af374-ad5a-4846-a7ee-398e3cf6ed63"
 	    }
 
-	response = requests.request("GET", url, auth = HTTPBasicAuth('admin', data['console_admin_password']), verify = False, headers = headers)
+	response = requests.request("GET", url, auth = HTTPBasicAuth(data['console_user'], data['console_password']), verify = False, headers = headers)
 #	print(response.text)
 #	print(reponse.url)
 #	print response.json()
@@ -71,10 +72,11 @@ def main():
     fields = {
  "description": {"required": True, "type": "str"},
 "consoleip": {"required": True, "type": "str"},
-"console_admin_password": {"required": True, "type": "str", "no_log": True}
+"console_user": { "type": "str"},
+"console_password": { "type": "str", "no_log": True},
+"token": { "type": "str", "no_log": True}
 }
-
-    module = AnsibleModule(argument_spec=fields)
+    module = AnsibleModule(argument_spec=fields, required_one_of = [ ['console_password', 'token' ] ],mutually_exclusive = [ ['console_password', 'token' ] ], required_together =[['console_user', 'console_password']])
     is_error, has_changed, result = getusers (module.params)
 #    is_error, has_changed, result = 0, 0, postUsers(fields)
 
