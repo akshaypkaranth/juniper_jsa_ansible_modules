@@ -62,8 +62,9 @@ def addmanagedhost(data):
 #	print response.json()
 #	return response.json()
 	if response.status_code < 300:
-		#deploy()
 		return False, True, response.json()
+	if response.status_code == 422:
+		return False, False, response.json()
         return True, False, response.json()
 
 
@@ -72,7 +73,7 @@ def main():
     fields = {
         "consoleip": {"required": True, "type": "str"},
         "managed_host_ip": {"required": True, "type": "str"},
-        "managed_host_password": {"required": True, "type": "str"},
+        "managed_host_password": {"required": True, "type": "str", "no_log": True},
         "console_user": { "type": "str"},
 	"console_password": { "type": "str", "no_log": True},
 	"token": { "type": "str", "no_log": True}
